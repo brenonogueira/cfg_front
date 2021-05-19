@@ -3,10 +3,14 @@ import { Button, Form, FormGroup, Input, Container, Row, Col } from 'reactstrap'
 import { useFormik } from "formik";
 import axios from 'axios'
 import { useHistory } from "react-router-dom"
+import { useSelector, useDispatch } from 'react-redux'
+import cfgActions from '../../store/actions/cfgActions'
 
-const Formulario = () => {
+const Formulario = (props) => {
 
     const history = useHistory()
+    const estado_global = useSelector( state => state.cfgReducer )
+    const dispatch = useDispatch()
 
     //adicionando campos do formulario a constante formik
     const formik = useFormik({
@@ -21,15 +25,20 @@ const Formulario = () => {
         },
     });
 
-    //metodo para ficar ouvindo os campos do formulario (formik)
-    useEffect(() => {
-        console.log(formik.values)
-    }, [formik.values])
+    const limpa_form = () => {
+        formik.values.nickname = ''
+        // formik.setFieldValue('nickname', '')
+        formik.setFieldValue('resolucao', '')
+        formik.setFieldValue('funcao', '')
+        formik.setFieldValue('mapa', '')
+        formik.setFieldValue('sensibilidade', '')
+        formik.setFieldValue('resolucao', '')
+        formik.setFieldValue('hz', '')
+        formik.setFieldValue('dpi', '')
+        dispatch(cfgActions.edit(null))
+    }
 
-    //const para enviar dados do form via POST
-    const submit = (e) => {
-        e.preventDefault() //pagina nao atualiza ao clicar no botao
-        //adicionando dados do formik à API
+    const createCfg = () => {
         axios.post('http://127.0.0.1:3333/player', {
             nickname: formik.values.nickname,
             mapa: formik.values.mapa,
@@ -38,12 +47,60 @@ const Formulario = () => {
             hz: formik.values.hz,
             sensibilidade: formik.values.sensibilidade,
             dpi: formik.values.dpi
-
-
         }).then(() => {
-            history.push("/dados") //redireciona para pagina dados ao clicar no botao
+            // alert('dados salvo com sucesso!')
         })
     }
+
+    const updateCfg = (id) => {
+        axios.put(`http://127.0.0.1:3333/player/${id}`, {
+            nickname: formik.values.nickname,
+            mapa: formik.values.mapa,
+            funcao: formik.values.funcao,
+            resolucao: formik.values.resolucao,
+            hz: formik.values.hz,
+            sensibilidade: formik.values.sensibilidade,
+            dpi: formik.values.dpi
+        }).then(() => {
+            // alert('dados atualizado com sucesso!')
+        })
+    }
+
+    //const para enviar dados do form via POST
+    const submit = (e) => {
+        e.preventDefault() //pagina nao atualiza ao clicar no botao
+
+        if (estado_global.edit) {
+            updateCfg(estado_global.edit.id)
+        } else {
+            createCfg()
+        }
+        dispatch(cfgActions.busca_dados_api())
+        history.push("/dados") //redireciona para pagina dados ao clicar no botao
+    }
+
+    // add dados para edição
+    useEffect(() => {
+        console.log(estado_global.edit)
+        if (estado_global.edit) {
+            formik.setFieldValue('nickname', estado_global.edit.nickname)
+            formik.setFieldValue('resolucao', estado_global.edit.resolucao)
+            formik.setFieldValue('funcao', estado_global.edit.funcao)
+            formik.setFieldValue('mapa', estado_global.edit.mapa)
+            formik.setFieldValue('sensibilidade', estado_global.edit.sensibilidade)
+            formik.setFieldValue('resolucao', estado_global.edit.resolucao)
+            formik.setFieldValue('hz', estado_global.edit.hz)
+            formik.setFieldValue('dpi', estado_global.edit.dpi)
+        }
+    }, [estado_global.edit])
+
+    useEffect(() => {
+        // console.log('montou o componente')
+        return () => {
+            // console.log('desmontou o componente')
+            limpa_form()
+        }
+    }, [])
 
     return (
         <Container className="mt-5">

@@ -10,17 +10,23 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Home from "./views/Home.js";
 import Dados from "./views/Dados.js";
 
+import { Provider } from 'react-redux'
+import store from './store'
+
 var hist = createBrowserHistory();
 
 ReactDOM.render(
-  <Router history={hist}>
-    <Switch>
-       <Route path="/dados" component={Dados} />
-       {/*<Route path="/profile-page" component={ProfilePage} />
-      <Route path="/login-page" component={LoginPage} /> */}
-      <Route path="/" component={Home} />
-    </Switch>
-  </Router>,
+  <Provider store={store}>
+    <Router history={hist}>
+      <Switch>
+        <Route path="/dados" component={Dados} />
+        {/*<Route path="/profile-page" component={ProfilePage} />
+        <Route path="/login-page" component={LoginPage} /> */}
+        <Route path="/" component={Home} />
+      </Switch>
+    </Router>
+  </Provider>
+  ,
   document.getElementById('root')
 );
 
