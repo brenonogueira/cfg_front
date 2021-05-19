@@ -38,6 +38,7 @@ const Formulario = (props) => {
         dispatch(cfgActions.edit(null))
     }
 
+    //metodo para enviar dados via POST
     const createCfg = () => {
         axios.post('http://127.0.0.1:3333/player', {
             nickname: formik.values.nickname,
@@ -52,6 +53,7 @@ const Formulario = (props) => {
         })
     }
 
+    //metodo para atualizar dados
     const updateCfg = (id) => {
         axios.put(`http://127.0.0.1:3333/player/${id}`, {
             nickname: formik.values.nickname,
